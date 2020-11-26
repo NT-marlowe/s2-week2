@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ソフトウェア2（第2回）サンプルプログラム
 
 ## はじめに
@@ -25,3 +26,6 @@ gcc -o falling -Wall falling.c -L. -lfall -lm
 gcc -o bouncing -Wall bouncing.c -L. -lbounce -lm
 ./bouncing
 ```
+=======
+# s2-week2
+>>>>>>> 383c5b5a97e2db9cdabd70ccdca36deeef736229
