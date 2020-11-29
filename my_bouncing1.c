@@ -5,7 +5,7 @@
 #include "physics2.h"
 
 void my_plot_objects(Object objs[], const size_t numobj, const double t, const Condition cond);
-void my_update_velocities(Object objs[], const size_t numobj, const Condition cond);
+void my_update_velocities_and_positions(Object objs[], const size_t numobj, const Condition cond);
 void my_update_positions(Object objs[], const size_t numobj, const Condition cond);
 void my_bounce(Object objs[], const size_t numobj, const Condition cond);
 int is_inside(double x, double y, const Condition cond);
@@ -35,8 +35,8 @@ int main(int argc, char **argv)
   printf("\n");
   for (int i = 0 ; t <= stop_time ; i++){
     t = i * cond.dt;
-    my_update_velocities(objects, objnum, cond);
-    my_update_positions(objects, objnum, cond);
+    my_update_velocities_and_positions(objects, objnum, cond);
+    // my_update_positions(objects, objnum, cond);
     my_bounce(objects, objnum, cond);
     
     // 表示の座標系は width/2, height/2 のピクセル位置が原点となるようにする
@@ -79,7 +79,8 @@ void my_plot_objects(Object objs[], const size_t numobj, const double t, const C
   printf("\n");
 }
 
-void my_update_velocities(Object objs[], const size_t numobj, const Condition cond) {
+void my_update_velocities_and_positions(Object objs[], const size_t numobj, const Condition cond) {
+  // slackでの指摘の通り修正した
   double accel_x[numobj], accel_y[numobj];
   for (int i = 0; i < numobj; i++) {
     double ax = 0, ay = 0;
@@ -94,6 +95,14 @@ void my_update_velocities(Object objs[], const size_t numobj, const Condition co
     accel_x[i] = cond.G * ax;
     accel_y[i] = cond.G * ay;
   }
+
+  for (int i = 0; i < numobj; i++) {
+    objs[i].prev_x = objs[i].x;
+    objs[i].prev_y = objs[i].y;
+    objs[i].x += objs[i].vx * cond.dt;
+    objs[i].y += objs[i].vy * cond.dt;
+  }
+
   for (int i = 0; i < numobj; i++) {
     objs[i].vx += accel_x[i] * cond.dt;
     objs[i].vy += accel_y[i] * cond.dt;
