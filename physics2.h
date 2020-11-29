@@ -13,17 +13,20 @@ typedef struct condition
 typedef struct object
 {
   double m;
+  double x;
   double y;
+  double prev_x;
   double prev_y; // 壁からの反発に使用
+  double vx;
   double vy;
 } Object;
 
 // 授業で用意した関数のプロトタイプ宣言
 
-void plot_objects(Object objs[], const size_t numobj, const double t, const Condition cond);
-void update_velocities(Object objs[], const size_t numobj, const Condition cond);
-void update_positions(Object objs[], const size_t numobj, const Condition cond);
-void bounce(Object objs[], const size_t numobj, const Condition cond);
+// void plot_objects(Object objs[], const size_t numobj, const double t, const Condition cond);
+// void update_velocities(Object objs[], const size_t numobj, const Condition cond);
+// void update_positions(Object objs[], const size_t numobj, const Condition cond);
+// void bounce(Object objs[], const size_t numobj, const Condition cond);
 
 // To do: 以下に上記と同じ引数で実行される my_* を作成
 // 実装できたらmain関数で上記と入れ替えていく
