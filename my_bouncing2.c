@@ -11,6 +11,7 @@ void my_update_positions(Object objs[], const size_t numobj, const Condition con
 void my_bounce(Object objs[], const size_t numobj, const Condition cond);
 int is_inside(double x, double y, const Condition cond);
 
+// default.dat(地球と小球), a.dat, planets.datで動作を確認した。
 int main(int argc, char **argv)
 {
   const Condition cond = {
