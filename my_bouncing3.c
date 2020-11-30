@@ -9,6 +9,7 @@ void my_plot_objects(Object objs[], const size_t numobj, const double t, const C
 void my_update_velocities_and_positions(Object objs[], const size_t numobj, const Condition cond);
 void my_update_positions(Object objs[], const size_t numobj, const Condition cond);
 void my_bounce(Object objs[], const size_t numobj, const Condition cond);
+void my_merge(Object objs[], const size_t numobj, const Condition cond);
 int is_inside(double x, double y, const Condition cond);
 
 int main(int argc, char **argv)
@@ -17,10 +18,10 @@ int main(int argc, char **argv)
 		    .width  = 75,
 		    .height = 40,
 		    .G = 1.0,
-		    .dt = 1.0,
+		    .dt = 0.10,
 		    .cor = 0.8
   };
-  
+  // 惑星の融合を観察するために、dtを小さくしてある。a.txtとplanets.datの両方で動作を確認した。
   size_t objnum;
   FILE *fp;
   if (argc < 3) {
@@ -66,6 +67,7 @@ int main(int argc, char **argv)
   printf("\n");
   for (int i = 0 ; t <= stop_time ; i++){
     t = i * cond.dt;
+    my_merge(objects, objnum, cond);
     my_update_velocities_and_positions(objects, objnum, cond);
     // my_update_positions(objects, objnum, cond);
     my_bounce(objects, objnum, cond);
@@ -121,6 +123,10 @@ void my_update_velocities_and_positions(Object objs[], const size_t numobj, cons
     for (int j = 0; j < numobj; j++) {
       if (i == j) continue;
       d = sqrt(pow(objs[i].x-objs[j].x, 2) + pow(objs[i].y-objs[j].y, 2));
+      /*if (d < 1) {
+        my_merge(objs[i], objs[j], numobj, cond);
+        continue;
+      }*/
       ax += objs[j].m  * (objs[j].x - objs[i].x) / (d*d*d);
       ay += objs[j].m  * (objs[j].y - objs[i].y) / (d*d*d);
     }
@@ -160,6 +166,7 @@ void my_bounce(Object objs[], const size_t numobj, const Condition cond) {
   double X, Y;
   int w = cond.width, h = cond.height;
   for (int i = 0; i < numobj; i++) {
+    if (objs[i].m < 1) continue;
     if (!is_inside(objs[i].prev_x, objs[i].prev_y, cond)) continue;
     X = objs[i].x + (w/2);
     Y = objs[i].y + (h/2);
@@ -184,4 +191,30 @@ void my_bounce(Object objs[], const size_t numobj, const Condition cond) {
       objs[i].y = h/2 - fabs(objs[i].vy) * after_t;
     }
   }
+}
+
+void my_merge(Object objs[], const size_t numobj, const Condition cond) {
+  for (int i = 0; i < numobj; i++) {
+      Object newobj;
+      double d;
+      for (int j = 0; j < numobj; j++) {
+        if (i == j) continue;
+        d = sqrt(pow(objs[i].x-objs[j].x, 2) + pow(objs[i].y-objs[j].y, 2));
+        if (d >= 1) continue;
+        newobj.m = objs[i].m + objs[j].m;
+        newobj.x = (objs[i].x + objs[j].x) / 2;
+        newobj.y = (objs[i].y + objs[j].y) / 2;
+        newobj.prev_x = (objs[i].prev_x + objs[j].prev_x) / 2;
+        newobj.prev_y = (objs[i].prev_y + objs[j].prev_y) / 2;
+        newobj.vx = (objs[i].m*objs[i].vx + objs[i].m*objs[j].vx) / newobj.m;
+        newobj.vy = (objs[i].m*objs[i].vy + objs[i].m*objs[j].vy) / newobj.m;
+
+        objs[i] = newobj;
+
+        objs[j].m = 0;
+        objs[j].x = objs[j].prev_x = -1000; 
+        objs[j].y = objs[j].prev_y = -1000;
+        objs[j].vx = objs[j].vy = 0;
+      }
+    }
 }
